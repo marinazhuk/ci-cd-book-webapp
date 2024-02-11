@@ -4,7 +4,9 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: ./book-webapp
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
@@ -13,7 +15,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - run: cd book-webapp
       - name: Run unit tests and build project
         run: mvn --batch-mode --update-snapshots verify
       - name: Copy build jar file to separate folder
