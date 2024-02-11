@@ -9,6 +9,7 @@ jobs:
         working-directory: ./book-webapp
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -17,14 +18,16 @@ jobs:
           cache: maven
       - name: Run unit tests and build project
         run: mvn --batch-mode --update-snapshots verify
-      - name: Copy build jar file to separate folder
-        run: |
-          mkdir staging && cp target/*.jar staging
-      - name: Deploy to Staging
+
+      - name: Stop running app on Staging
+        run: kill $(cat ./pid.file)
+
+      - name: Deploy new version app to Staging
         env:
           PRIVATE_KEY: ${{secrets.AWS_PRIVATE_KEY}}
           HOSTNAME: ${{secrets.HOSTNAME}}
           USER_NAME : ${{secrets.AWS_USER_NAME}}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key 
-          scp -o StrictHostKeyChecking=no -i private_key target/*.jar ${USER_NAME}@${HOSTNAME}:~/.
+          scp -o StrictHostKeyChecking=no -i private_key target/*.jar ${USER_NAME}@${HOSTNAME}:~/app.jar
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'java -jar app.jar & echo $! > ./pid.file &'
