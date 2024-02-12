@@ -19,8 +19,8 @@ jobs:
       - name: Run unit tests and build project
         run: mvn --batch-mode --update-snapshots verify
 
-      - name: Stop running app on Staging
-        run: kill $(cat ~/pid.file)
+      #- name: Stop running app on Staging
+      #  run: kill $(cat ~/pid.file)
 
       - name: Deploy new version app to Staging
         env:
