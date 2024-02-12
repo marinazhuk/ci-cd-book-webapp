@@ -17,7 +17,7 @@ import java.io.IOException;
 
 public class BookWebappApiTest {
 
-    private String url = "http://localhost:8080/books";
+    private final String url = "http://ec2-16-170-211-2.eu-north-1.compute.amazonaws.com:8080/books";
 
     @Test
     public void getBookNotFound() throws IOException {
@@ -30,18 +30,6 @@ public class BookWebappApiTest {
                      .execute(request)) {
             // Then
             assertThat(response.getCode(), equalTo(HttpStatus.SC_NOT_FOUND));
-        }
-    }
-
-    @Test
-    public void getExistedBook() throws IOException {
-        // Given
-        final HttpUriRequest request = new HttpGet(url + "/1");
-        // When
-        try (CloseableHttpClient client = HttpClients.createDefault();
-             CloseableHttpResponse response = client.execute(request)) {
-            // Then
-            assertThat(response.getCode(), equalTo(HttpStatus.SC_OK));
         }
     }
 
@@ -60,6 +48,15 @@ public class BookWebappApiTest {
         // When
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(request)) {
+            // Then
+            assertThat(response.getCode(), equalTo(HttpStatus.SC_OK));
+        }
+
+        // Given
+        final HttpUriRequest getRequest = new HttpGet(url + "/1");
+        // When
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(getRequest)) {
             // Then
             assertThat(response.getCode(), equalTo(HttpStatus.SC_OK));
         }
