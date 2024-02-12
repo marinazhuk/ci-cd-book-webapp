@@ -29,7 +29,9 @@ jobs:
           scp -o StrictHostKeyChecking=no -i private_key target/*.jar ${USER_NAME}@${HOSTNAME}:~/app.jar
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'pkill -f app.jar&'
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'nohup java -jar ~/app.jar > ~/spring.log 2>&1 &'
-
+      - name: Sleep for 3 minutes
+        run: sleep 180s
+        shell: bash
       - name: Run system tests on Staging
         run: |
           cd ../book-webapp-api-tests
