@@ -16,23 +16,37 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Run unit tests and build project
+      - name: Run unit tests and build application
         run: mvn --batch-mode --update-snapshots verify
 
-      - name: Deploy new version app to Staging
+      - name: Deploy to Staging
         env:
-          PRIVATE_KEY: ${{secrets.AWS_PRIVATE_KEY}}
-          HOSTNAME: ${{secrets.HOSTNAME}}
-          USER_NAME : ${{secrets.AWS_USER_NAME}}
+          PRIVATE_KEY: ${{secrets.STG_AWS_PRIVATE_KEY}}
+          HOSTNAME: ${{secrets.STG_HOSTNAME}}
+          USER_NAME : ${{secrets.STG_AWS_USER_NAME}}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key 
           scp -o StrictHostKeyChecking=no -i private_key target/*.jar ${USER_NAME}@${HOSTNAME}:~/app.jar
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'pkill -f app.jar&'
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'nohup java -jar ~/app.jar > ~/spring.log 2>&1 &'
-      - name: Sleep for 3 minutes
+
+      - name: Wait until application starts
         run: sleep 180s
         shell: bash
+
       - name: Run system tests on Staging
         run: |
           cd ../book-webapp-api-tests
           mvn --batch-mode --update-snapshots verify
+
+      - name: Deploy to Production
+        env:
+          PRIVATE_KEY: ${{secrets.PROD_AWS_PRIVATE_KEY}}
+          HOSTNAME: ${{secrets.PROD_HOSTNAME}}
+          USER_NAME : ${{secrets.PROD_AWS_USER_NAME}}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key 
+          scp -o StrictHostKeyChecking=no -i private_key target/*.jar ${USER_NAME}@${HOSTNAME}:~/app.jar
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'pkill -f app.jar&'
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'nohup java -jar ~/app.jar > ~/spring.log 2>&1 &'
+ 
