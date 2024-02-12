@@ -19,8 +19,8 @@ jobs:
       - name: Run unit tests and build project
         run: mvn --batch-mode --update-snapshots verify
 
-      #- name: Stop running app on Staging
-      #  run: kill $(cat ~/pid.file)
+      - name: Stop running app on Staging
+        run: kill $(cat ~/pid.file)
 
       - name: Deploy new version app to Staging
         env:
@@ -30,7 +30,7 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key 
           scp -o StrictHostKeyChecking=no -i private_key target/*.jar ${USER_NAME}@${HOSTNAME}:~/app.jar
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'java -jar ~/app.jar & echo $! > ~/pid.file &'
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'java -jar ~/app.jar'
 
       - name: Run system tests on Staging
         run: |
