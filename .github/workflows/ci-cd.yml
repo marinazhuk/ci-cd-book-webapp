@@ -28,8 +28,8 @@ jobs:
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key 
           scp -o StrictHostKeyChecking=no -i private_key target/*.jar ${USER_NAME}@${HOSTNAME}:~/app.jar
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            kill $(cat ~/pid.file) &&
-            java -jar ~/app.jar &'
+            pkill -f app.jar &&
+            java -jar ~/app.jar&'
 
       - name: Run system tests on Staging
         run: |
