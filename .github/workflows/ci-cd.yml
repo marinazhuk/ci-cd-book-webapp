@@ -28,7 +28,7 @@ jobs:
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key 
           scp -o StrictHostKeyChecking=no -i private_key target/*.jar ${USER_NAME}@${HOSTNAME}:~/app.jar
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'pkill -f app.jar&'
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'java -jar ~/app.jar&'
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'nohup java -jar ~/app.jar > ~/spring.log 2>&1 &'
 
       - name: Run system tests on Staging
         run: |
